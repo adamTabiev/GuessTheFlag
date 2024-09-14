@@ -81,7 +81,7 @@ struct ContentView: View {
         } message: {
             Text("Your score is \(score)")
         }
-        .alert("Game Over", isPresented: $showingEndOfGame) {
+        .alert("congratulations", isPresented: $showingEndOfGame) {
             Button("Restart", action: restartGame)
         } message: {
             Text("Your final score is \(score)")
@@ -92,21 +92,22 @@ struct ContentView: View {
         if number == correctAnswer {
             scoreTitle = "Correct"
             score += 1
+            askQuestion() // Сразу переходим к следующему вопросу
         } else {
             scoreTitle = "Wrong! That’s the flag of \(countries[number])"
             if score > 0 {
                 score -= 1
             }
+            showingScore = true // Показываем алерт только при неправильном ответе
         }
         
         numberOfGames += 1
         
-        if numberOfGames == 8 {
+        if numberOfGames == 3 {
             showingEndOfGame = true
-        } else {
-            showingScore = true
         }
     }
+
     
     func askQuestion() {
         countries.shuffle()
