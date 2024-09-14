@@ -37,8 +37,7 @@ struct ContentView: View {
                 Spacer()
                 
                 Text("Guess the flag")
-                    .font(.largeTitle.bold())
-                    .foregroundStyle(.white)
+                    .titleStyle()
                 
                 VStack(spacing: 15) {
                     VStack {
@@ -54,9 +53,7 @@ struct ContentView: View {
                         Button {
                             flagTapped(number)
                         } label: {
-                            Image(countries[number])
-                                .clipShape(Capsule())
-                                .shadow(radius: 5)
+                            FlagImage(imageName: countries[number])
                         }
                     }
                 }
@@ -92,18 +89,18 @@ struct ContentView: View {
         if number == correctAnswer {
             scoreTitle = "Correct"
             score += 1
-            askQuestion() // Сразу переходим к следующему вопросу
+            askQuestion()
         } else {
             scoreTitle = "Wrong! That’s the flag of \(countries[number])"
             if score > 0 {
                 score -= 1
             }
-            showingScore = true // Показываем алерт только при неправильном ответе
+            showingScore = true
         }
         
         numberOfGames += 1
         
-        if numberOfGames == 3 {
+        if numberOfGames == 8 {
             showingEndOfGame = true
         }
     }
@@ -121,8 +118,31 @@ struct ContentView: View {
     }
 }
 
+struct FlagImage: View {
+    var imageName: String
+
+    var body: some View {
+        Image(imageName)
+            .clipShape(Capsule())
+            .shadow(radius: 5)
+    }
+}
+
 #Preview {
     ContentView()
 }
 
 
+struct Title: ViewModifier {
+    func body(content: Content) -> some View {
+        content
+            .font(.largeTitle.bold())
+            .foregroundStyle(.white)
+    }
+}
+
+extension View {
+    func titleStyle() -> some View {
+        modifier(Title())
+    }
+}
