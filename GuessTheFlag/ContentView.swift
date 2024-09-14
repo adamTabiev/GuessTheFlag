@@ -18,7 +18,7 @@ struct ContentView: View {
     @State private var score = 0
     
     @State private var numberOfGames = 0
-    @State private var ShowEndOfGame = false
+    @State private var showingEndOfGame = false
     
     var body: some View {
         ZStack {
@@ -32,7 +32,6 @@ struct ContentView: View {
                 endRadius: 700
             )
             .ignoresSafeArea()
-            
             
             VStack {
                 Spacer()
@@ -48,17 +47,15 @@ struct ContentView: View {
                             .font(.subheadline.weight(.heavy))
                         
                         Text(countries[correctAnswer])
-                            //.foregroundStyle(.white)
                             .font(.largeTitle.weight(.semibold))
                     }
                     
                     ForEach(0..<3) { number in
                         Button {
-                            numberOfGames += 1
                             flagTapped(number)
                         } label: {
                             Image(countries[number])
-                                .clipShape(.capsule)
+                                .clipShape(Capsule())
                                 .shadow(radius: 5)
                         }
                     }
@@ -66,12 +63,12 @@ struct ContentView: View {
                 .frame(maxWidth: .infinity)
                 .padding(.vertical, 20)
                 .background(.regularMaterial)
-                .clipShape(.rect(cornerRadius: 20))
+                .clipShape(RoundedRectangle(cornerRadius: 20))
                 
                 Spacer()
                 Spacer()
                 
-                Text("Score: ???")
+                Text("Score: \(score)")
                     .foregroundStyle(.white)
                     .font(.title.bold())
                 
@@ -82,7 +79,12 @@ struct ContentView: View {
         .alert(scoreTitle, isPresented: $showingScore) {
             Button("Continue", action: askQuestion)
         } message: {
-            Text("Yuor score is \(score)")
+            Text("Your score is \(score)")
+        }
+        .alert("Game Over", isPresented: $showingEndOfGame) {
+            Button("Restart", action: restartGame)
+        } message: {
+            Text("Your final score is \(score)")
         }
     }
     
@@ -91,23 +93,35 @@ struct ContentView: View {
             scoreTitle = "Correct"
             score += 1
         } else {
-            scoreTitle = "Wrong"
-            if score == 0 {
-                score = 0
-            } else {
+            scoreTitle = "Wrong! That’s the flag of \(countries[number])"
+            if score > 0 {
                 score -= 1
             }
         }
         
-        showingScore = true
+        numberOfGames += 1
+        
+        if numberOfGames == 8 {
+            showingEndOfGame = true
+        } else {
+            showingScore = true
+        }
     }
     
     func askQuestion() {
         countries.shuffle()
         correctAnswer = Int.random(in: 0...2)
     }
+    
+    func restartGame() {
+        score = 0
+        numberOfGames = 0
+        askQuestion()
+    }
 }
 
 #Preview {
     ContentView()
 }
+
+
