@@ -8,20 +8,24 @@
 import SwiftUI
 
 struct ContentView: View {
+    
     @State private var countries = ["Estonia", "France", "Germany", "Ireland", "Italy", "Nigeria", "Poland", "UK", "US"].shuffled()
+   
     @State private var correctAnswer = Int.random(in: 0...2)
     
-    @State private var showingScore = false
-    @State private var scoreTitle = ""
+    @State private var showingScore = false // Показывать ли алерт с результатом ответа
+    @State private var scoreTitle = "" // Заголовок алерта с результатом
     
+    // Переменная для хранения текущего счета игрока
     @State private var score = 0
     
-    @State private var numberOfGames = 0
-    @State private var showingEndOfGame = false
+    // Переменные для отслеживания количества игр и окончания игры
+    @State private var numberOfGames = 0 // Счетчик сыгранных игр
+    @State private var showingEndOfGame = false // Показывать ли алерт с окончанием игры
     
-    // Добавлены переменные состояния для анимации
-    @State private var animationAmount = 0.0
-    @State private var selectedFlag: Int? = nil
+    // Переменные состояния для анимации
+    @State private var animationAmount = 0.0 // Угол вращения флага
+    @State private var selectedFlag: Int? = nil // Индекс выбранного флага
     
     var body: some View {
         ZStack {
@@ -56,14 +60,14 @@ struct ContentView: View {
                         Button {
                             flagTapped(number)
                         } label: {
-                            FlagImage(imageName: countries[number])
+                            FlagImage(imageName: countries[number]) // Кастомное представление флага
                         }
-                        // Вращение выбранного флага
+                        // Анимация вращения выбранного флага
                         .rotation3DEffect(
-                            .degrees(number == selectedFlag ? animationAmount : 0),
-                            axis: (x: 0, y: 1, z: 0)
+                            .degrees(number == selectedFlag ? animationAmount : 0), // Вращаем только выбранный флаг
+                            axis: (x: 0, y: 1, z: 0) // Вращение по оси Y
                         )
-                        // Снижение непрозрачности невыбранных флагов
+                        // Изменение прозрачности невыбранных флагов
                         .opacity(selectedFlag == nil || number == selectedFlag ? 1.0 : 0.25)
                         // Анимация изменений
                         .animation(.easeInOut(duration: 1), value: animationAmount)
@@ -85,11 +89,13 @@ struct ContentView: View {
             }
             .padding()
         }
+
         .alert(scoreTitle, isPresented: $showingScore) {
             Button("Продолжить", action: askQuestion)
         } message: {
             Text("Ваш счет: \(score)")
         }
+
         .alert("Поздравляем!", isPresented: $showingEndOfGame) {
             Button("Начать заново", action: restartGame)
         } message: {
@@ -97,8 +103,9 @@ struct ContentView: View {
         }
     }
     
+    // Функция, вызываемая при нажатии на флаг
     func flagTapped(_ number: Int) {
-        selectedFlag = number
+        selectedFlag = number // Сохраняем индекс выбранного флага
         
         if number == correctAnswer {
             scoreTitle = "Правильно"
@@ -110,43 +117,47 @@ struct ContentView: View {
             }
         }
         
+        // Запускаем анимацию вращения
         withAnimation(.easeInOut(duration: 1)) {
-            animationAmount += 360
+            animationAmount += 360 // Увеличиваем угол вращения на 360 градусов
         }
         
-        numberOfGames += 1
+        numberOfGames += 1 // Увеличиваем счетчик игр
         
-        // Задержка перед показом алерта, чтобы дать время на завершение анимации
+        // Задерживаем показ алерта на 1 секунду для завершения анимации
         DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
             if numberOfGames == 8 {
-                showingEndOfGame = true
+                showingEndOfGame = true // Показываем алерт с окончанием игры
             } else {
-                showingScore = true
+                showingScore = true // Показываем алерт с результатом ответа
             }
         }
     }
-
+    
+    // Функция для перехода к следующему вопросу
     func askQuestion() {
-        countries.shuffle()
-        correctAnswer = Int.random(in: 0...2)
-        selectedFlag = nil
-        animationAmount = 0.0
+        countries.shuffle() // Перемешиваем массив стран
+        correctAnswer = Int.random(in: 0...2) // Выбираем новый правильный ответ
+        selectedFlag = nil // Сбрасываем выбранный флаг
+        animationAmount = 0.0 // Сбрасываем угол вращения
     }
     
+    // Функция для перезапуска игры
     func restartGame() {
-        score = 0
-        numberOfGames = 0
-        selectedFlag = nil
-        animationAmount = 0.0
-        askQuestion()
+        score = 0 // Сбрасываем счет
+        numberOfGames = 0 // Сбрасываем счетчик игр
+        selectedFlag = nil // Сбрасываем выбранный флаг
+        animationAmount = 0.0 // Сбрасываем угол вращения
+        askQuestion() // Начинаем новую игру
     }
 }
 
+// Кастомное представление для отображения флага
 struct FlagImage: View {
-    var imageName: String
-
+    var imageName: String // Название изображения флага
+    
     var body: some View {
-        Image(imageName)
+        Image(imageName) // Загружаем изображение
             .renderingMode(.original)
             .clipShape(Capsule())
             .shadow(radius: 5)
@@ -156,6 +167,7 @@ struct FlagImage: View {
 #Preview {
     ContentView()
 }
+
 
 struct Title: ViewModifier {
     func body(content: Content) -> some View {
@@ -170,5 +182,6 @@ extension View {
         modifier(Title())
     }
 }
+
 
 
